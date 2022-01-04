@@ -1,6 +1,6 @@
 /*
  *  Catch v1.12.2
- *  Generated: 2022-01-04 23:09:50.753101
+ *  Generated: 2022-01-04 23:10:27.918195
  *  ----------------------------------------------------------
  *  This file has been merged from multiple headers. Please don't edit it directly
  *  Copyright (c) 2012 Two Blue Cubes Ltd. All rights reserved.
@@ -8516,7 +8516,11 @@ namespace Catch {
 #pragma warning(disable:4996) // std::uncaught_exception is deprecated in C++17
 #endif
     ScopedMessage::~ScopedMessage() {
+#ifdef __cpp_lib_uncaught_exceptions
+        if ( std::uncaught_exceptions() == 0 ){
+#else
         if ( !std::uncaught_exception() ){
+#endif
             getResultCapture().popScopedMessage(m_info);
         }
     }
@@ -8842,7 +8846,11 @@ namespace Catch {
     Section::~Section() {
         if( m_sectionIncluded ) {
             SectionEndInfo endInfo( m_info, m_assertions, m_timer.getElapsedSeconds() );
+#ifdef __cpp_lib_uncaught_exceptions
+            if( std::uncaught_exceptions() > 0 )
+#else
             if( std::uncaught_exception() )
+#endif
                 getResultCapture().sectionEndedEarly( endInfo );
             else
                 getResultCapture().sectionEnded( endInfo );
